@@ -1,5 +1,6 @@
-// sessionController.js
+// authController.js
 const sha = require("sha256");
+const { ObjectId } = require("mongoose").Types;
 
 // 사용자 세션을 확인하는 함수
 const checkUserSession = (req, res) => {
@@ -42,8 +43,33 @@ const logoutUser = (req, res) => {
   res.json({ user: null });
 };
 
+// 사용자 회원가입을 처리하는 함수
+const signupUser = async (req, res, mydb) => {
+  console.log(req.body.userId);
+  console.log(req.body.userPw);
+  console.log(req.body.userGroup);
+  console.log(req.body.userEmail);
+
+  try {
+    const collection = mydb.collection("account");
+    await collection.insertOne({
+      userId: req.body.userId,
+      userPw: sha(req.body.userPw),
+      userGroup: req.body.userGroup,
+      userEmail: req.body.userEmail,
+    });
+
+    console.log("회원가입 성공");
+    res.json({ message: "회원가입 성공" });
+  } catch (err) {
+    console.error("회원가입 에러:", err);
+    res.status(500).send({ error: err.message });
+  }
+};
+
 module.exports = {
   checkUserSession,
   loginUser,
   logoutUser,
+  signupUser,
 };
